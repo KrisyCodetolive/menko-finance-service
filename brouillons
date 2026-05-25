@@ -1,0 +1,333 @@
+# Brouillon — Architecture Base de Données
+# Micro-service Comptabilité & Caisse — Menko Holding
+
+---
+
+## PARTIE 1 — GESTION DES UTILISATEURS
+
+### 1.1 Tables
+
+---
+
+#### Table `filiale`
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| nom | TEXTE | Menko Holding, Menko Agro, Menko SARL, Menko Digitech, Menko Building |
+| type | TEXTE | Holding ou Filiale |
+
+---
+
+#### Table `role`
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| nom | TEXTE | Super Administrateur, Directeur Général, DFC, Trésorier |
+
+---
+
+#### Table `utilisateur`
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| nom | TEXTE | Nom de famille |
+| prenom | TEXTE | Prénom |
+| email | TEXTE | Adresse email (unique) |
+| mot_de_passe | TEXTE | Mot de passe chiffré |
+| identifiant_role | UUID | Clé étrangère → table role |
+| actif | BOOLEEN | Compte actif ou désactivé |
+| date_creation | HORODATAGE | Date de création du compte |
+
+---
+
+### 1.3 Rôles et Responsabilités
+
+#### Super Administrateur
+- Accès complet à toutes les filiales et toutes les données
+- Créer, modifier et supprimer des comptes utilisateurs
+- Attribuer et modifier les rôles des utilisateurs
+- Configurer les paramètres globaux du système
+- Consulter tous les modules et tous les rapports e
+
+
+---
+
+#### Directeur Général
+- Aucune saisie de données — lecture seule uniquement
+- Consulter le tableau de bord consolidé de tout le groupe
+- Consulter la balance générale par filiale et consolidée
+- Consulter le bilan (actif / passif)
+- Consulter le compte de résultat (produits / charges)
+- Exporter tous les rapports en PDF ou Excel
+
+---
+
+#### DFC / Comptable
+- Créer, modifier et archiver les comptes du plan comptable SYSCOHADA par filiale
+- Saisir les écritures comptables (journal, date, numéro de pièce, libellé)
+- Saisir les lignes débit et crédit de chaque écriture
+- Attacher les pièces justificatives (factures, reçus scannés)
+- Valider une écriture (Brouillon → Validée)
+- Générer et consulter la balance générale
+- Générer et consulter le grand livre par compte et par période
+- Générer et consulter le bilan actif / passif
+- Générer et consulter le compte de résultat
+- Saisir les bulletins de paie des employés par filiale
+- Enregistrer les mouvements financiers entre filiales
+
+---
+
+#### Trésorier
+- Créer et gérer les comptes bancaires par filiale (nom banque, numéro de compte, solde initial)
+- Émettre un chèque (numéro, bénéficiaire, montant, motif, compte bancaire débité)
+- Mettre à jour le statut d'un chèque émis : En cours → Encaissé ou Rejeté
+- Enregistrer un chèque reçu (émetteur, montant, date de réception)
+- Mettre à jour le statut d'un chèque reçu : Reçu → Remis en banque → Encaissé ou Rejeté
+- Lancer une session de rapprochement bancaire (compte + période)
+- Importer un relevé bancaire (format CSV ou OFX) ou saisie manuelle
+- Valider les lignes du rapprochement : Réconciliée ou Écart
+- Enregistrer les virements entre filiales
+- Consulter le solde en temps réel de chaque compte bancaire
+
+---
+
+## PARTIE 2 — COMPTABILITÉ
+
+### 2.1 Table `compte_comptable`
+
+Le plan comptable SYSCOHADA — répertoire de tous les comptes financiers par filiale.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| numero | TEXTE | Numéro du compte (ex : 601000) |
+| libelle | TEXTE | Nom du compte (ex : Achats semences) |
+| classe | ENTIER | Premier chiffre du numéro (1 à 7) |
+| type | TEXTE | Débit ou Crédit |
+| actif | BOOLEEN | Compte utilisable ou archivé |
+| identifiant_filiale | UUID | Clé étrangère → table filiale |
+
+#### Classes des comptes
+
+| Classe | Catégorie | Exemples |
+|---|---|---|
+| 1 | Capitaux | Capital social, Emprunts |
+| 2 | Immobilisations | Véhicules, Bâtiments, Matériels |
+| 3 | Stocks | Stocks de marchandises |
+| 4 | Tiers | Clients, Fournisseurs |
+| 5 | Trésorerie | Banque, Caisse |
+| 6 | Charges | Achats, Salaires, Carburant |
+| 7 | Produits | Ventes, Revenus |
+
+---
+
+### 2.2 Table `journal_comptable`
+
+Le journal regroupe les écritures par type d'opération — basé sur les types définis dans le CDC Menko.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| code | TEXTE | Code court du journal (ex : VTE, ACH) |
+| nom | TEXTE | Nom complet du journal |
+| identifiant_filiale | UUID | Clé étrangère → table filiale |
+
+#### Les 4 journaux de Menko
+
+| Code | Nom | Ce qu'il couvre |
+|---|---|---|
+| VTE | Ventes | Factures émises, encaissements clients |
+| ACH | Achats | Factures reçues, paiements fournisseurs |
+| SAL | Salaires | Fiches de paie, charges sociales |
+| OI | Opérations Internes | Virements inter-filiales, compensations |
+
+---
+
+### 2.3 Table `tiers`
+
+Regroupe les clients et fournisseurs concernés par les écritures comptables.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| nom | TEXTE | Nom du client ou fournisseur |
+| type | TEXTE | Client / Fournisseur / Les deux |
+| telephone | TEXTE | Numéro de contact |
+| email | TEXTE | Adresse email |
+| adresse | TEXTE | Adresse physique |
+| identifiant_filiale | UUID | Clé étrangère → table filiale |
+
+---
+
+### 2.4 Table `ecriture_comptable`
+
+L'entête de chaque opération financière saisie par le DFC.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| numero_piece | TEXTE | Référence auto générée (ex : ACH-2026-0012) |
+| date_ecriture | DATE | Date de l'opération |
+| libelle | TEXTE | Description de l'opération |
+| identifiant_journal | UUID | Clé étrangère → table journal_comptable |
+| identifiant_filiale | UUID | Clé étrangère → table filiale |
+| identifiant_utilisateur | UUID | Clé étrangère → table utilisateur |
+| identifiant_tiers | UUID | Clé étrangère → table tiers (vide pour les salaires) |
+| date_creation | HORODATAGE | Date de saisie |
+
+---
+
+### 2.5 Table `ligne_ecriture`
+
+Les lignes débit/crédit de chaque écriture — chaque ligne pointe vers un compte SYSCOHADA.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| identifiant_ecriture | UUID | Clé étrangère → table ecriture_comptable |
+| identifiant_compte | UUID | Clé étrangère → table compte_comptable |
+| debit | DECIMAL | Montant débité (0 si ligne de crédit) |
+| credit | DECIMAL | Montant crédité (0 si ligne de débit) |
+
+---
+
+### 2.6 Table `piece_justificative`
+
+Les documents scannés (factures, reçus) attachés à une écriture comptable.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| nom_fichier | TEXTE | Nom du fichier (ex : facture_koffi_avril.pdf) |
+| url_fichier | TEXTE | Chemin de stockage du fichier |
+| identifiant_ecriture | UUID | Clé étrangère → table ecriture_comptable |
+| date_upload | HORODATAGE | Date d'ajout du document |
+
+---
+
+### 2.7 Table `employe`
+
+Les employés de chaque filiale.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| nom | TEXTE | Nom de famille |
+| prenom | TEXTE | Prénom |
+| poste | TEXTE | Poste occupé |
+| salaire_base | DECIMAL | Salaire de base mensuel |
+| date_embauche | DATE | Date d'entrée dans l'entreprise |
+| actif | BOOLEEN | Employé actif ou parti |
+| identifiant_filiale | UUID | Clé étrangère → table filiale |
+
+---
+
+### 2.8 Table `bulletin_paie`
+
+Les fiches de paie mensuelles par employé.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| mois | ENTIER | Mois concerné (1 à 12) |
+| annee | ENTIER | Année concernée |
+| salaire_brut | DECIMAL | Salaire avant déductions |
+| charges_salariales | DECIMAL | Cotisations CNPS employé |
+| impot | DECIMAL | IRPP et autres impôts |
+| salaire_net | DECIMAL | Salaire après déductions |
+| charges_patronales | DECIMAL | Cotisations CNPS employeur |
+| identifiant_employe | UUID | Clé étrangère → table employe |
+| identifiant_ecriture | UUID | Clé étrangère → table ecriture_comptable |
+| date_creation | HORODATAGE | Date de saisie |
+
+---
+
+### 2.9 Table `mouvement_inter_filiale`
+
+Les virements financiers entre filiales du groupe.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| libelle | TEXTE | Description du mouvement |
+| montant | DECIMAL | Montant du virement |
+| date_mouvement | DATE | Date du virement |
+| identifiant_filiale_source | UUID | Clé étrangère → filiale qui envoie |
+| identifiant_filiale_destination | UUID | Clé étrangère → filiale qui reçoit |
+| identifiant_ecriture_source | UUID | Clé étrangère → écriture côté source |
+| identifiant_ecriture_destination | UUID | Clé étrangère → écriture côté destination |
+| date_creation | HORODATAGE | Date de saisie |
+
+---
+
+## PARTIE 3 — TRÉSORERIE & CAISSE
+
+### 3.1 Table `compte_bancaire`
+
+Les comptes bancaires de chaque filiale enregistrés par le Trésorier.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| nom_banque | TEXTE | Nom de la banque (SGCI, Ecobank, UBA...) |
+| numero_compte | TEXTE | Numéro RIB / IBAN |
+| solde_initial | DECIMAL | Solde à l'ouverture du compte |
+| actif | BOOLEEN | Compte actif ou clôturé |
+| identifiant_filiale | UUID | Clé étrangère → table filiale |
+
+---
+
+### 3.2 Table `cheque`
+
+Les chèques émis vers les fournisseurs et reçus des clients — fusionnés en une seule table.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| type | TEXTE | EMIS ou RECU |
+| numero_cheque | TEXTE | Numéro unique du chèque |
+| tiers_nom | TEXTE | Bénéficiaire si émis / Émetteur si reçu |
+| montant | DECIMAL | Valeur du chèque |
+| motif | TEXTE | Objet du paiement |
+| date_cheque | DATE | Date d'émission ou de réception |
+| date_encaissement | DATE | Date effective d'encaissement |
+| statut | TEXTE | En cours / Remis en banque / Encaissé / Rejeté |
+| identifiant_compte_bancaire | UUID | Clé étrangère → table compte_bancaire |
+| identifiant_ecriture | UUID | Clé étrangère → table ecriture_comptable |
+
+---
+
+### 3.3 Table `rapprochement_bancaire`
+
+L'entête de chaque session de rapprochement — un par compte bancaire par période.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| periode | TEXTE | Mois et année (ex : Avril 2026) |
+| statut | TEXTE | En cours / Terminé |
+| solde_releve | DECIMAL | Solde final du relevé bancaire |
+| date_import | DATE | Date d'import du relevé |
+| identifiant_compte_bancaire | UUID | Clé étrangère → table compte_bancaire |
+| identifiant_utilisateur | UUID | Clé étrangère → table utilisateur (Trésorier) |
+
+---
+
+### 3.4 Table `ligne_rapprochement`
+
+Chaque ligne du relevé bancaire comparée avec les écritures du système.
+
+| Champ | Type | Description |
+|---|---|---|
+| identifiant | UUID | Identifiant unique |
+| date_releve | DATE | Date de l'opération sur le relevé banque |
+| libelle_releve | TEXTE | Libellé brut de la banque |
+| montant_releve | DECIMAL | Montant sur le relevé (positif ou négatif) |
+| statut | TEXTE | Réconciliée / Écart / En attente |
+| identifiant_rapprochement | UUID | Clé étrangère → table rapprochement_bancaire |
+| identifiant_ecriture | UUID | Clé étrangère → table ecriture_comptable (vide si écart) |
+
+
