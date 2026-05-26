@@ -65,11 +65,14 @@ public class EcritureComptableAdapter implements EcritureComptablePort {
             jpa.setTiers(tiersRepo.findById(e.getIdentifiantTiers()).orElse(null));
         }
 
+        jpa.setStatut(e.getStatut() != null ? e.getStatut() : "BROUILLON");
+
         jpa.getLignes().clear();
         if (e.getLignes() != null) {
             for (LigneEcriture l : e.getLignes()) {
                 LigneEcritureJpa ligne = new LigneEcritureJpa();
                 ligne.setEcriture(jpa);
+                ligne.setLibelle(l.getLibelle() != null ? l.getLibelle() : jpa.getLibelle());
                 ligne.setCompte(compteRepo.findById(l.getIdentifiantCompte())
                         .orElseThrow(() -> new IllegalArgumentException("Compte introuvable : " + l.getIdentifiantCompte())));
                 ligne.setDebit(l.getDebit());
@@ -94,6 +97,7 @@ public class EcritureComptableAdapter implements EcritureComptablePort {
                         .identifiantCompte(l.getCompte().getIdentifiant())
                         .numeroCompte(l.getCompte().getNumero())
                         .libelleCompte(l.getCompte().getLibelle())
+                        .libelle(l.getLibelle())
                         .debit(l.getDebit())
                         .credit(l.getCredit())
                         .build())
@@ -104,6 +108,7 @@ public class EcritureComptableAdapter implements EcritureComptablePort {
                 .numeroPiece(jpa.getNumeroPiece())
                 .dateEcriture(jpa.getDateEcriture())
                 .libelle(jpa.getLibelle())
+                .statut(jpa.getStatut())
                 .identifiantJournal(jpa.getJournal().getIdentifiant())
                 .codeJournal(jpa.getJournal().getCode())
                 .nomJournal(jpa.getJournal().getNom())

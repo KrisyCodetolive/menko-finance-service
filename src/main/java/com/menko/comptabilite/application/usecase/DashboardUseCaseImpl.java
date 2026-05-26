@@ -37,23 +37,20 @@ public class DashboardUseCaseImpl implements DashboardUseCase {
                 .orElseThrow(() -> new EntiteIntrouvableException("Filiale", filialeId));
 
         long nombreEcritures = ecritureRepo.countByFilialeIdentifiant(filialeId);
-        long nombreComptes = compteRepo.findByFilialeIdentifiant(filialeId,
-                PageRequest.of(0, Integer.MAX_VALUE)).getTotalElements();
+        long nombreComptes = compteRepo.countByFilialeIdentifiant(filialeId);
 
         BigDecimal totalDebit = ligneRepo.sumTotalDebit(filialeId);
         BigDecimal totalCredit = ligneRepo.sumTotalCredit(filialeId);
         BigDecimal soldeTresorerie = ligneRepo.sumSoldeTresorerie(filialeId);
 
-        long chequesEnCours = compteRepo.findByFilialeIdentifiant(filialeId,
-                PageRequest.of(0, Integer.MAX_VALUE))
-                .stream()
+        var comptesBancaires = compteBancaireRepo.findByFilialeIdentifiant(filialeId);
+
+        long chequesEnCours = comptesBancaires.stream()
                 .mapToLong(c -> chequeRepo.countByCompteBancaireIdentifiantAndStatut(
                         c.getIdentifiant(), "En cours"))
                 .sum();
 
-        long rapprochementsEnCours = compteRepo.findByFilialeIdentifiant(filialeId,
-                PageRequest.of(0, Integer.MAX_VALUE))
-                .stream()
+        long rapprochementsEnCours = comptesBancaires.stream()
                 .mapToLong(c -> rapprochementRepo.countByCompteBancaireIdentifiantAndStatut(
                         c.getIdentifiant(), "En cours"))
                 .sum();

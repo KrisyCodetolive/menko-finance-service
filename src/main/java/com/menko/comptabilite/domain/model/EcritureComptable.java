@@ -20,6 +20,8 @@ public class EcritureComptable {
     private String numeroPiece;
     private LocalDate dateEcriture;
     private String libelle;
+    /** Workflow: BROUILLON → VALIDEE → CLOTUREE */
+    private String statut;
     private UUID identifiantJournal;
     private String codeJournal;
     private String nomJournal;

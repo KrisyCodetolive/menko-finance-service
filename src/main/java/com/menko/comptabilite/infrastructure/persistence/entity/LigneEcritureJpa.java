@@ -17,6 +17,9 @@ public class LigneEcritureJpa {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID identifiant;
 
+    @Column(nullable = false)
+    private String libelle;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "identifiant_ecriture", nullable = false)
     private EcritureComptableJpa ecriture;

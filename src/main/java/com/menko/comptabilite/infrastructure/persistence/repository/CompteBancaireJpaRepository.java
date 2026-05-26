@@ -27,6 +27,6 @@ public interface CompteBancaireJpaRepository extends JpaRepository<CompteBancair
     BigDecimal calculerSoldeActuel(@Param("compteId") UUID compteId);
 
     @Query("SELECT COALESCE(SUM(cb.soldeInitial), 0) FROM CompteBancaireJpa cb " +
-           "WHERE cb.filiale.identifiant = :filialeId AND cb.actif = true")
+           "WHERE cb.filiale.identifiant = :filialeId AND cb.statut = 'ACTIF'")
     BigDecimal sumSoldeInitialByFiliale(@Param("filialeId") UUID filialeId);
 }

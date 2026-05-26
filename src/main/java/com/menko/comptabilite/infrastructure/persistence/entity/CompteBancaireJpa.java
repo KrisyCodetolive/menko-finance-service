@@ -17,17 +17,23 @@ public class CompteBancaireJpa {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID identifiant;
 
-    @Column(name = "nom_banque", nullable = false)
-    private String nomBanque;
+    @Column(name = "nom", nullable = false)
+    private String nom;
 
-    @Column(name = "numero_compte", nullable = false)
+    @Column(name = "numero_compte", nullable = false, unique = true)
     private String numeroCompte;
+
+    @Column(name = "banque", nullable = false)
+    private String banque;
+
+    @Column(name = "devise", nullable = false)
+    private String devise = "XOF";
 
     @Column(name = "solde_initial", nullable = false, precision = 15, scale = 2)
     private BigDecimal soldeInitial = BigDecimal.ZERO;
 
-    @Column(nullable = false)
-    private Boolean actif = true;
+    @Column(name = "statut", nullable = false)
+    private String statut = "ACTIF";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "identifiant_filiale", nullable = false)

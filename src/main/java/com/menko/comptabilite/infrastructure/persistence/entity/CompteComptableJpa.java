@@ -29,7 +29,7 @@ public class CompteComptableJpa {
     @Column(nullable = false)
     private Integer classe;
 
-    @Column(nullable = false)
+    @Column(name = "type_compte", nullable = false)
     private String type;
 
     @Column(nullable = false)

@@ -60,9 +60,9 @@ public class MouvementInterFilialeUseCaseImpl implements MouvementInterFilialeUs
                 null,
                 List.of(
                         new LigneEcritureRequest(request.identifiantCompteDebitSource(),
-                                request.montant(), java.math.BigDecimal.ZERO),
+                                request.montant(), java.math.BigDecimal.ZERO, null),
                         new LigneEcritureRequest(request.identifiantCompteCreditSource(),
-                                java.math.BigDecimal.ZERO, request.montant())
+                                java.math.BigDecimal.ZERO, request.montant(), null)
                 )
         );
         EcritureComptable ecritureSource = ecritureUseCase.creer(reqSource, utilisateurId);
@@ -76,9 +76,9 @@ public class MouvementInterFilialeUseCaseImpl implements MouvementInterFilialeUs
                 null,
                 List.of(
                         new LigneEcritureRequest(request.identifiantCompteDebitDestination(),
-                                request.montant(), java.math.BigDecimal.ZERO),
+                                request.montant(), java.math.BigDecimal.ZERO, null),
                         new LigneEcritureRequest(request.identifiantCompteCreditDestination(),
-                                java.math.BigDecimal.ZERO, request.montant())
+                                java.math.BigDecimal.ZERO, request.montant(), null)
                 )
         );
         EcritureComptable ecritureDest = ecritureUseCase.creer(reqDest, utilisateurId);

@@ -65,7 +65,7 @@ public class RapprochementBancaireAdapter implements RapprochementBancairePort {
                 .soldeReleve(jpa.getSoldeReleve())
                 .dateImport(jpa.getDateImport())
                 .identifiantCompteBancaire(jpa.getCompteBancaire().getIdentifiant())
-                .nomBanque(jpa.getCompteBancaire().getNomBanque())
+                .nomBanque(jpa.getCompteBancaire().getNom())
                 .numeroCompte(jpa.getCompteBancaire().getNumeroCompte())
                 .identifiantUtilisateur(jpa.getUtilisateur().getIdentifiant())
                 .nomUtilisateur(jpa.getUtilisateur().getNom() + " " + jpa.getUtilisateur().getPrenom())

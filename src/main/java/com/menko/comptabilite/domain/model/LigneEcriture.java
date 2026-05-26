@@ -19,6 +19,7 @@ public class LigneEcriture {
     private UUID identifiantCompte;
     private String numeroCompte;
     private String libelleCompte;
+    private String libelle;
     private BigDecimal debit;
     private BigDecimal credit;
 }

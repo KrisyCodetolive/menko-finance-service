@@ -15,6 +15,8 @@ public interface CompteComptableJpaRepository extends JpaRepository<CompteCompta
 
     Page<CompteComptableJpa> findByFilialeIdentifiant(UUID filialeId, Pageable pageable);
 
+    long countByFilialeIdentifiant(UUID filialeId);
+
     List<CompteComptableJpa> findByFilialeIdentifiantAndClasse(UUID filialeId, Integer classe);
 
     Optional<CompteComptableJpa> findByNumeroAndFilialeIdentifiant(String numero, UUID filialeId);

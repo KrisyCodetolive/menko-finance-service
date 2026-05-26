@@ -85,7 +85,7 @@ public class ChequeAdapter implements ChequePort {
                 .dateEncaissement(jpa.getDateEncaissement())
                 .statut(jpa.getStatut())
                 .identifiantCompteBancaire(jpa.getCompteBancaire().getIdentifiant())
-                .nomBanque(jpa.getCompteBancaire().getNomBanque())
+                .nomBanque(jpa.getCompteBancaire().getNom())
                 .identifiantEcriture(jpa.getEcriture() != null ? jpa.getEcriture().getIdentifiant() : null)
                 .build();
     }

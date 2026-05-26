@@ -55,7 +55,7 @@ class CompteComptableUseCaseImplTest {
 
         assertThat(result.getNumero()).isEqualTo("100001");
         assertThat(result.getClasse()).isEqualTo(1);
-        assertThat(result.isActif()).isTrue();
+        assertThat(result.getActif()).isTrue();
     }
 
     @Test
@@ -92,7 +92,7 @@ class CompteComptableUseCaseImplTest {
 
         useCase.archiver(compteId);
 
-        verify(comptePort).save(argThat(c -> !c.isActif()));
+        verify(comptePort).save(argThat(c -> !c.getActif()));
     }
 
     @Test

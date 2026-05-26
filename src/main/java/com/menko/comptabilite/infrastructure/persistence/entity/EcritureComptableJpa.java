@@ -26,6 +26,9 @@ public class EcritureComptableJpa {
     @Column(name = "numero_piece", nullable = false, unique = true)
     private String numeroPiece;
 
+    @Column(nullable = false)
+    private String statut = "BROUILLON";
+
     @Column(name = "date_ecriture", nullable = false)
     private LocalDate dateEcriture;
 

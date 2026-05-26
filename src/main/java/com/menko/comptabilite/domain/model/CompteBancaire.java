@@ -15,12 +15,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CompteBancaire {
     private UUID identifiant;
-    private String nomBanque;
+    /** Nom/libellé du compte (ex: "Compte courant SGCI"). */
+    private String nom;
     private String numeroCompte;
+    /** Institution bancaire (ex: "SGCI", "Ecobank"). */
+    private String banque;
+    private String devise;
     private BigDecimal soldeInitial;
-    private Boolean actif;
+    /** ACTIF ou CLOTURE. */
+    private String statut;
     private UUID identifiantFiliale;
     private String nomFiliale;
-    /** Solde calculé = soldeInitial + mouvements. */
+    /** Solde calculé = soldeInitial + mouvements encaissés. */
     private BigDecimal soldeActuel;
 }

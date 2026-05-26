@@ -16,5 +16,8 @@ public record LigneEcritureRequest(
 
         @NotNull
         @DecimalMin(value = "0.00", message = "Le crédit ne peut pas être négatif")
-        BigDecimal credit
+        BigDecimal credit,
+
+        /** Libellé propre à la ligne (optionnel — hérite du libellé de la pièce si absent). */
+        String libelle
 ) {}

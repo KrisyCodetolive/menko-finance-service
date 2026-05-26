@@ -39,10 +39,12 @@ public class CompteBancaireAdapter implements CompteBancairePort {
         CompteBancaireJpa jpa = c.getIdentifiant() != null
                 ? repository.findById(c.getIdentifiant()).orElse(new CompteBancaireJpa())
                 : new CompteBancaireJpa();
-        jpa.setNomBanque(c.getNomBanque());
+        jpa.setNom(c.getNom());
         jpa.setNumeroCompte(c.getNumeroCompte());
-        jpa.setSoldeInitial(c.getSoldeInitial());
-        jpa.setActif(c.getActif());
+        jpa.setBanque(c.getBanque());
+        jpa.setDevise(c.getDevise() != null ? c.getDevise() : "XOF");
+        jpa.setSoldeInitial(c.getSoldeInitial() != null ? c.getSoldeInitial() : BigDecimal.ZERO);
+        jpa.setStatut(c.getStatut() != null ? c.getStatut() : "ACTIF");
         FilialeJpa filiale = filialeRepository.findById(c.getIdentifiantFiliale())
                 .orElseThrow(() -> new IllegalArgumentException("Filiale introuvable"));
         jpa.setFiliale(filiale);
@@ -58,10 +60,12 @@ public class CompteBancaireAdapter implements CompteBancairePort {
     private CompteBancaire toDomain(CompteBancaireJpa jpa, BigDecimal soldeActuel) {
         return CompteBancaire.builder()
                 .identifiant(jpa.getIdentifiant())
-                .nomBanque(jpa.getNomBanque())
+                .nom(jpa.getNom())
                 .numeroCompte(jpa.getNumeroCompte())
+                .banque(jpa.getBanque())
+                .devise(jpa.getDevise())
                 .soldeInitial(jpa.getSoldeInitial())
-                .actif(jpa.getActif())
+                .statut(jpa.getStatut())
                 .identifiantFiliale(jpa.getFiliale().getIdentifiant())
                 .nomFiliale(jpa.getFiliale().getNom())
                 .soldeActuel(soldeActuel != null ? soldeActuel : jpa.getSoldeInitial())

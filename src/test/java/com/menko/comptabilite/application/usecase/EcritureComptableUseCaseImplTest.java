@@ -45,8 +45,8 @@ class EcritureComptableUseCaseImplTest {
     @Test
     void creer_ecritureEquilibree_succes() {
         List<LigneEcritureRequest> lignes = List.of(
-                new LigneEcritureRequest(compteId, new BigDecimal("1000"), BigDecimal.ZERO),
-                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("1000"))
+                new LigneEcritureRequest(compteId, new BigDecimal("1000"), BigDecimal.ZERO, null),
+                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("1000"), null)
         );
         EcritureComptableRequest request = new EcritureComptableRequest(
                 LocalDate.now(), "Achat marchandises", journalId, filialeId, null, lignes);
@@ -68,8 +68,8 @@ class EcritureComptableUseCaseImplTest {
     @Test
     void creer_ecritureDesequilibree_leveException() {
         List<LigneEcritureRequest> lignes = List.of(
-                new LigneEcritureRequest(compteId, new BigDecimal("1000"), BigDecimal.ZERO),
-                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("900"))
+                new LigneEcritureRequest(compteId, new BigDecimal("1000"), BigDecimal.ZERO, null),
+                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("900"), null)
         );
         EcritureComptableRequest request = new EcritureComptableRequest(
                 LocalDate.now(), "Écriture déséquilibrée", journalId, filialeId, null, lignes);
@@ -82,8 +82,8 @@ class EcritureComptableUseCaseImplTest {
     @Test
     void creer_journalInexistant_leveException() {
         List<LigneEcritureRequest> lignes = List.of(
-                new LigneEcritureRequest(compteId, new BigDecimal("500"), BigDecimal.ZERO),
-                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("500"))
+                new LigneEcritureRequest(compteId, new BigDecimal("500"), BigDecimal.ZERO, null),
+                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("500"), null)
         );
         EcritureComptableRequest request = new EcritureComptableRequest(
                 LocalDate.now(), "Test", journalId, filialeId, null, lignes);
@@ -96,8 +96,8 @@ class EcritureComptableUseCaseImplTest {
     @Test
     void creer_numeroPieceSequentiel_incrementeCorrectement() {
         List<LigneEcritureRequest> lignes = List.of(
-                new LigneEcritureRequest(compteId, new BigDecimal("200"), BigDecimal.ZERO),
-                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("200"))
+                new LigneEcritureRequest(compteId, new BigDecimal("200"), BigDecimal.ZERO, null),
+                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("200"), null)
         );
         EcritureComptableRequest request = new EcritureComptableRequest(
                 LocalDate.now(), "Vente", journalId, filialeId, null, lignes);
@@ -131,8 +131,8 @@ class EcritureComptableUseCaseImplTest {
         when(ecriturePort.findById(id)).thenReturn(Optional.of(existante));
 
         List<LigneEcritureRequest> lignesDesequilibrees = List.of(
-                new LigneEcritureRequest(compteId, new BigDecimal("300"), BigDecimal.ZERO),
-                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("100"))
+                new LigneEcritureRequest(compteId, new BigDecimal("300"), BigDecimal.ZERO, null),
+                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("100"), null)
         );
         EcritureComptableRequest request = new EcritureComptableRequest(
                 LocalDate.now(), "Modif", journalId, filialeId, null, lignesDesequilibrees);
