@@ -30,8 +30,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      APP_JWT_SECRET: ${APP_JWT_SECRET:-menko-holding-super-secret-key-at-least-256-bits-long-change-in-prod}
-      APP_JWT_EXPIRATION_MS: ${APP_JWT_EXPIRATION_MS:-86400000}
+      JWT_SECRET: ${JWT_SECRET:-menko-holding-super-secret-key-at-least-256-bits-long-change-in-prod}
     depends_on:
       postgres:
         condition: service_healthy
