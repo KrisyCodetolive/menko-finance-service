@@ -31,6 +31,7 @@ public interface LigneEcritureJpaRepository extends JpaRepository<LigneEcritureJ
            JOIN l.compte c
            JOIN l.ecriture e
            WHERE c.filiale.identifiant = :filialeId
+             AND e.statut IN ('VALIDEE', 'CLOTUREE')
              AND (:debut IS NULL OR e.dateEcriture >= :debut)
              AND (:fin   IS NULL OR e.dateEcriture <= :fin)
            GROUP BY c.identifiant, c.numero, c.libelle, c.classe
@@ -42,12 +43,13 @@ public interface LigneEcritureJpaRepository extends JpaRepository<LigneEcritureJ
 
     @Query("""
            SELECT new com.menko.comptabilite.application.dto.response.GrandLivreLigneResponse(
-               e.dateEcriture, e.numeroPiece, e.libelle, e.journal.code,
-               l.debit, l.credit, 0
+               e.dateEcriture, e.numeroPiece, l.libelle, e.journal.code,
+               l.debit, l.credit, 0.0BD
            )
            FROM LigneEcritureJpa l
            JOIN l.ecriture e
            WHERE l.compte.identifiant = :compteId
+             AND e.statut IN ('VALIDEE', 'CLOTUREE')
              AND (:debut IS NULL OR e.dateEcriture >= :debut)
              AND (:fin   IS NULL OR e.dateEcriture <= :fin)
            ORDER BY e.dateEcriture, e.dateCreation

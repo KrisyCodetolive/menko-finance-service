@@ -19,7 +19,7 @@ public interface ChequeJpaRepository extends JpaRepository<ChequeJpa, UUID> {
                                                               String statut, Pageable pageable);
 
     @Query("SELECT c FROM ChequeJpa c WHERE c.compteBancaire.filiale.identifiant = :filialeId " +
-           "AND c.statut = 'En cours' AND c.dateCheque <= :limite " +
+           "AND c.statut IN ('En cours', 'Remis en banque') AND c.dateCheque <= :limite " +
            "ORDER BY c.dateCheque ASC")
     List<ChequeJpa> findChequesNonEncaissesBefore(@Param("filialeId") UUID filialeId,
                                                     @Param("limite") LocalDate limite);

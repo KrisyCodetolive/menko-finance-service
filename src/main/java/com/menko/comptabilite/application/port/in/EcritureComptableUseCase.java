@@ -15,4 +15,8 @@ public interface EcritureComptableUseCase {
     EcritureComptable creer(EcritureComptableRequest request, UUID utilisateurId);
     EcritureComptable modifier(UUID id, EcritureComptableRequest request);
     void supprimer(UUID id);
+    /** Transition BROUILLON → VALIDEE. */
+    EcritureComptable valider(UUID id);
+    /** Transition VALIDEE → CLOTUREE. */
+    EcritureComptable cloturer(UUID id);
 }

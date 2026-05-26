@@ -82,7 +82,23 @@ public class RapprochementBancaireUseCaseImpl implements RapprochementBancaireUs
         if (request.identifiantEcriture() != null) {
             ligne.setIdentifiantEcriture(request.identifiantEcriture());
         }
-        return lignePort.save(ligne);
+        LigneRapprochement sauvegardee = lignePort.save(ligne);
+        verifierClotureAutomatique(sauvegardee.getIdentifiantRapprochement());
+        return sauvegardee;
+    }
+
+    private void verifierClotureAutomatique(UUID rapprochementId) {
+        if (rapprochementId == null) return;
+        List<LigneRapprochement> toutes = lignePort.findByRapprochementId(rapprochementId);
+        boolean toutesTraitees = !toutes.isEmpty() &&
+                toutes.stream().noneMatch(l -> "En attente".equals(l.getStatut()));
+        if (toutesTraitees) {
+            RapprochementBancaire r = trouverParId(rapprochementId);
+            if (!"Terminé".equals(r.getStatut())) {
+                r.setStatut("Terminé");
+                rapprochementPort.save(r);
+            }
+        }
     }
 
     @Override

@@ -60,4 +60,14 @@ public class EcritureComptableController {
         ecritureUseCase.supprimer(id);
         return ResponseEntity.ok(ApiResponse.ok("Écriture supprimée"));
     }
+
+    @PostMapping("/{id}/valider")
+    public ResponseEntity<ApiResponse<EcritureComptable>> valider(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.ok(ecritureUseCase.valider(id)));
+    }
+
+    @PostMapping("/{id}/cloturer")
+    public ResponseEntity<ApiResponse<EcritureComptable>> cloturer(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.ok(ecritureUseCase.cloturer(id)));
+    }
 }

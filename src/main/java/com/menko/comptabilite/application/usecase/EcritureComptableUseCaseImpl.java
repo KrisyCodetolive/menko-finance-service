@@ -77,6 +77,10 @@ public class EcritureComptableUseCaseImpl implements EcritureComptableUseCase {
     @Transactional
     public EcritureComptable modifier(UUID id, EcritureComptableRequest request) {
         EcritureComptable ecriture = trouverParId(id);
+        if (!"BROUILLON".equals(ecriture.getStatut())) {
+            throw new RegleMetierException(
+                    "Seule une écriture BROUILLON peut être modifiée (statut actuel : " + ecriture.getStatut() + ")");
+        }
         validerEquilibreEcriture(request.lignes());
 
         List<LigneEcriture> lignes = request.lignes().stream()
@@ -98,8 +102,36 @@ public class EcritureComptableUseCaseImpl implements EcritureComptableUseCase {
 
     @Override
     public void supprimer(UUID id) {
-        trouverParId(id);
+        EcritureComptable ecriture = trouverParId(id);
+        if (!"BROUILLON".equals(ecriture.getStatut())) {
+            throw new RegleMetierException(
+                    "Seule une écriture BROUILLON peut être supprimée (statut actuel : " + ecriture.getStatut() + ")");
+        }
         ecriturePort.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public EcritureComptable valider(UUID id) {
+        EcritureComptable ecriture = trouverParId(id);
+        if (!"BROUILLON".equals(ecriture.getStatut())) {
+            throw new RegleMetierException(
+                    "Seule une écriture BROUILLON peut être validée (statut actuel : " + ecriture.getStatut() + ")");
+        }
+        ecriture.setStatut("VALIDEE");
+        return ecriturePort.save(ecriture);
+    }
+
+    @Override
+    @Transactional
+    public EcritureComptable cloturer(UUID id) {
+        EcritureComptable ecriture = trouverParId(id);
+        if (!"VALIDEE".equals(ecriture.getStatut())) {
+            throw new RegleMetierException(
+                    "Seule une écriture VALIDEE peut être clôturée (statut actuel : " + ecriture.getStatut() + ")");
+        }
+        ecriture.setStatut("CLOTUREE");
+        return ecriturePort.save(ecriture);
     }
 
     private void validerEquilibreEcriture(List<LigneEcritureRequest> lignes) {

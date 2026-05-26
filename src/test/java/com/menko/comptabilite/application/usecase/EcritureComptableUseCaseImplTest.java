@@ -127,7 +127,7 @@ class EcritureComptableUseCaseImplTest {
     @Test
     void modifier_ecritureDesequilibree_leveException() {
         UUID id = UUID.randomUUID();
-        EcritureComptable existante = EcritureComptable.builder().identifiant(id).build();
+        EcritureComptable existante = EcritureComptable.builder().identifiant(id).statut("BROUILLON").build();
         when(ecriturePort.findById(id)).thenReturn(Optional.of(existante));
 
         List<LigneEcritureRequest> lignesDesequilibrees = List.of(
@@ -139,5 +139,82 @@ class EcritureComptableUseCaseImplTest {
 
         assertThatThrownBy(() -> useCase.modifier(id, request))
                 .isInstanceOf(RegleMetierException.class);
+    }
+
+    // --- Workflow statut ---
+
+    @Test
+    void valider_ecritureBrouillon_passaAValidee() {
+        UUID id = UUID.randomUUID();
+        EcritureComptable ecriture = EcritureComptable.builder().identifiant(id).statut("BROUILLON").build();
+        when(ecriturePort.findById(id)).thenReturn(Optional.of(ecriture));
+        when(ecriturePort.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        EcritureComptable result = useCase.valider(id);
+
+        assertThat(result.getStatut()).isEqualTo("VALIDEE");
+    }
+
+    @Test
+    void valider_ecritureNonBrouillon_leveException() {
+        UUID id = UUID.randomUUID();
+        EcritureComptable ecriture = EcritureComptable.builder().identifiant(id).statut("VALIDEE").build();
+        when(ecriturePort.findById(id)).thenReturn(Optional.of(ecriture));
+
+        assertThatThrownBy(() -> useCase.valider(id))
+                .isInstanceOf(RegleMetierException.class)
+                .hasMessageContaining("BROUILLON");
+    }
+
+    @Test
+    void cloturer_ecritureValidee_passaACloturee() {
+        UUID id = UUID.randomUUID();
+        EcritureComptable ecriture = EcritureComptable.builder().identifiant(id).statut("VALIDEE").build();
+        when(ecriturePort.findById(id)).thenReturn(Optional.of(ecriture));
+        when(ecriturePort.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        EcritureComptable result = useCase.cloturer(id);
+
+        assertThat(result.getStatut()).isEqualTo("CLOTUREE");
+    }
+
+    @Test
+    void cloturer_ecritureNonValidee_leveException() {
+        UUID id = UUID.randomUUID();
+        EcritureComptable ecriture = EcritureComptable.builder().identifiant(id).statut("BROUILLON").build();
+        when(ecriturePort.findById(id)).thenReturn(Optional.of(ecriture));
+
+        assertThatThrownBy(() -> useCase.cloturer(id))
+                .isInstanceOf(RegleMetierException.class)
+                .hasMessageContaining("VALIDEE");
+    }
+
+    @Test
+    void supprimer_ecritureValidee_leveException() {
+        UUID id = UUID.randomUUID();
+        EcritureComptable ecriture = EcritureComptable.builder().identifiant(id).statut("VALIDEE").build();
+        when(ecriturePort.findById(id)).thenReturn(Optional.of(ecriture));
+
+        assertThatThrownBy(() -> useCase.supprimer(id))
+                .isInstanceOf(RegleMetierException.class)
+                .hasMessageContaining("BROUILLON");
+    }
+
+    @Test
+    void modifier_ecritureValidee_leveException() {
+        UUID id = UUID.randomUUID();
+        EcritureComptable ecriture = EcritureComptable.builder().identifiant(id).statut("VALIDEE").build();
+        when(ecriturePort.findById(id)).thenReturn(Optional.of(ecriture));
+
+        List<LigneEcritureRequest> lignes = List.of(
+                new LigneEcritureRequest(compteId, new BigDecimal("500"), BigDecimal.ZERO, null),
+                new LigneEcritureRequest(compteId, BigDecimal.ZERO, new BigDecimal("500"), null)
+        );
+        EcritureComptableRequest request = new EcritureComptableRequest(
+                LocalDate.now(), "Modif bloquée", journalId, filialeId, null, lignes);
+
+        assertThatThrownBy(() -> useCase.modifier(id, request))
+                .isInstanceOf(RegleMetierException.class)
+                .hasMessageContaining("BROUILLON");
     }
 }
